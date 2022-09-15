@@ -8,8 +8,8 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  
   "dependencies": {
+    "pinia": "^2.0.22",
     "vue": "^3.2.39",
     "vuex": "^4.0.2"
   },
