@@ -1,16 +1,19 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+// import Vue from 'vue';
+// import Vuex from 'vuex';
+// import { alert } from './alert.module';
+// import { account } from './account.module';
+// import { users } from './users.module';
 
-import { alert } from './alert.module';
-import { account } from './account.module';
-import { users } from './users.module';
+// Vue.use(Vuex);
 
-Vue.use(Vuex);
+// export const store = new Vuex.Store({
+//   modules: {
+//     alert,
+//     account,
+//     users,
+//   },
+// });
 
-export const store = new Vuex.Store({
-  modules: {
-    alert,
-    account,
-    users,
-  },
-});
+export * from './alert.store';
+export * from './auth.store';
+export * from './users.store';
