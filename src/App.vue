@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterLink, RouterView } from './router';
 
 import { Nav, Alert } from '@/components';
 import { useAuthStore } from '@/stores';
