@@ -1,81 +1,43 @@
-import { userService } from '../_services';
-import { router } from '../_helpers';
+import { defineStore } from 'pinia';
 
-const user = JSON.parse(localStorage.getItem('user'));
-const state = user
-  ? { status: { loggedIn: true }, user }
-  : { status: {}, user: null };
+import { fetchWrapper } from '@/helpers';
+import { router } from '@/router';
+import { useAlertStore } from '@/stores';
 
-const actions = {
-  login({ dispatch, commit }, { username, password }) {
-    commit('loginRequest', { username });
+const baseUrl = `${import.meta.env.VITE_API_URL}/users`;
 
-    userService.login(username, password).then(
-      (user) => {
-        commit('loginSuccess', user);
-        router.push('/');
-      },
-      (error) => {
-        commit('loginFailure', error);
-        dispatch('alert/error', error, { root: true });
-      }
-    );
-  },
-  logout({ commit }) {
-    userService.logout();
-    commit('logout');
-  },
-  register({ dispatch, commit }, user) {
-    commit('registerRequest', user);
-
-    userService.register(user).then(
-      (user) => {
-        commit('registerSuccess', user);
-        router.push('/login');
-        setTimeout(() => {
-          // display success message after route change completes
-          dispatch('alert/success', 'Registration successful', { root: true });
+export const useAuthStore = defineStore({
+  id: 'auth',
+  state: () => ({
+    // initialize state from local storage to enable user to stay logged in
+    user: JSON.parse(localStorage.getItem('user')),
+    returnUrl: null,
+  }),
+  actions: {
+    async login(username, password) {
+      try {
+        const user = await fetchWrapper.post(`${baseUrl}/authenticate`, {
+          username,
+          password,
         });
-      },
-      (error) => {
-        commit('registerFailure', error);
-        dispatch('alert/error', error, { root: true });
+
+        // update pinia state
+        this.user = user;
+
+        // store user details and jwt in local storage to keep user logged in between page refreshes
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // redirect to previous url or default to home page
+        router.push(this.returnUrl || '/');
+      } catch (error) {
+        const alertStore = useAlertStore();
+        alertStore.error(error);
       }
-    );
+    },
+    logout() {
+      this.user = null;
+      localStorage.removeItem('user');
+      router.push('/account/login');
+    },
   },
-};
-
-const mutations = {
-  loginRequest(state, user) {
-    state.status = { loggingIn: true };
-    state.user = user;
-  },
-  loginSuccess(state, user) {
-    state.status = { loggedIn: true };
-    state.user = user;
-  },
-  loginFailure(state) {
-    state.status = {};
-    state.user = null;
-  },
-  logout(state) {
-    state.status = {};
-    state.user = null;
-  },
-  registerRequest(state, user) {
-    state.status = { registering: true };
-  },
-  registerSuccess(state, user) {
-    state.status = {};
-  },
-  registerFailure(state, error) {
-    state.status = {};
-  },
-};
-
-export const account = {
-  namespaced: true,
-  state,
-  actions,
-  mutations,
-};
+});
