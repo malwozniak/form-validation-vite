@@ -1,9 +1,3 @@
-<script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloPage.vue';
-</script>
-
 <template>
   <div>
     <a href="https://vitejs.dev" target="_blank">
@@ -14,7 +8,45 @@ import HelloWorld from './components/HelloPage.vue';
     </a>
   </div>
   <HelloWorld msg="Vite + Vue" />
+
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6 offset-sm-3">
+                    <div v-if="alert.message" :class="`alert ${alert.type}`">{{alert.message}}</div>
+                    <router-view></router-view>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
+
+<script>
+import { mapState, mapActions } from 'vuex'
+
+export default {
+    name: 'app',
+    computed: {
+        ...mapState({
+            alert: state => state.alert
+        })
+    },
+    methods: {
+        ...mapActions({
+            clearAlert: 'alert/clear' 
+        })
+    },
+    watch: {
+        $route (to, from){
+            // clear alert on location change
+            this.clearAlert();
+        }
+    } 
+};
+// This starter template is using Vue 3 <script setup> SFCs
+// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+import HelloWorld from './components/HelloPage.vue';
+</script>
 
 <style scoped>
 .logo {
